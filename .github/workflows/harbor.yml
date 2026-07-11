@@ -3,6 +3,8 @@ name: Harbor Benchmark
 on:
   push:
     branches: [ main ]
+  pull_request:
+    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 jobs:
