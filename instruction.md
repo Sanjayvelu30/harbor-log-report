@@ -1,21 +1,90 @@
-Determine whether a set of 2D coordinates lie "inside", "outside", or exactly on the "boundary" of a closed 2D region bounded by a mix of circular arcs, quadratic Bézier curves, and line segments.
+Determine the high‑precision value of oscillatory integrals of the form
 
-### Inputs
+    I(ω) = ∫_{a}^{b} f(x)·cos(ω x) dx
 
-1. `/app/boundary.json`: A list of boundary segments defining a simple closed path, where each segment is represented as:
-   - A line segment: `{"type": "line", "coords": [[x1, y1], [x2, y2]]}` (from `[x1, y1]` to `[x2, y2]`).
-   - A circular arc segment: `{"type": "arc", "center": [cx, cy], "radius": r, "angles": [a1, a2]}` (centered at `[cx, cy]` of radius `r`, traversing counterclockwise from angle `a1` to `a2` in radians).
-   - A quadratic Bézier curve segment: `{"type": "bezier", "control_points": [[x0, y0], [x1, y1], [x2, y2]]}` (parametrized by $B(t) = (1-t)^2 P_0 + 2(1-t)t P_1 + t^2 P_2$ for $t \in [0, 1]$ where $P_0=[x0, y0], P_1=[x1, y1], P_2=[x2, y2]$).
+for a set of synthetic test cases covering a wide range of frequencies, function families, and phase behaviours.
 
-2. `/app/points.json`: A JSON dictionary mapping point IDs (strings `"0"` to `"99"`) to coordinate pairs `[x, y]`.
+### Input Contract
 
-### Requirements
+The harness provides a JSON file **`/app/integral_cases.json`** containing a list of case objects, each with the following fields:
 
-- Classify each query point from `/app/points.json` as one of the following strings:
-  - `"boundary"`: The Euclidean distance from the query point to the closest point on the boundary segments is $\le 10^{-9}$.
-  - `"inside"`: The query point lies strictly inside the closed 2D region (and has a distance to the boundary $> 10^{-9}$).
-  - `"outside"`: The query point lies strictly outside the closed 2D region (and has a distance to the boundary $> 10^{-9}$).
-- Note: Non-boundary points are guaranteed to have a distance of at least $10^{-5}$ from the boundary to prevent numerical ambiguity.
-- Write your classifications to a JSON file at `/app/results.json`, which must be a single JSON dictionary mapping each point ID (from `"0"` to `"99"`) to its exact classification string.
+```json
+{
+  "id": "0",
+  "f": "poly3",            // identifier from the whitelist (see below)
+  "f_params": {"coeffs": [1.2, -0.3, 0.0, 2.5]}, // polynomial coefficients highest‑degree first
+  "g": "linear",           // "linear" for cos(ω·x) or "quadratic" / "sin" for non‑linear phase
+  "g_params": {"expr": "x**2"},   // required only when g ≠ "linear"
+  "a": 0.0,
+  "b": 1.0,
+  "omega": 12345.0
+}
+```
 
-You have 1800 seconds to complete this task. The clock starts now.
+**Function whitelist** – The solver may only use the following predefined functions (provided as Python callables via a small helper module):
+
+- `polyN` – polynomial of degree *N* (coefficients supplied in `f_params.coeffs`).
+- `exp` – exponential `exp(k·x)` (parameter `k`).
+- `besselJ` – Bessel function of the first kind `jv(n, x)` (order `n` supplied).
+
+**Phase `g`** – Determines the argument of the cosine. `"linear"` corresponds to `g(x)=x`; other values require the expression given in `g_params.expr` (a safe subset of Python arithmetic, parsed by the harness). The solver receives the callable `g(x)` when `g` is non‑linear.
+
+### Required Output
+
+The agent must write a JSON dictionary **`/app/results.json`** mapping each case `id` to an object with the exact schema:
+
+```json
+{
+  "integral": <float>,          // computed value
+  "error_estimate": <float>,    // reported tolerance (must be ≤ 1e‑12)
+  "nodes_used": <int>,          // number of function evaluations (instrumented by the harness)
+  "method": "filon" | "levin" | "mpmath" | "custom"
+}
+```
+
+The `method` field may contain any non‑empty string, but it must truthfully describe the algorithm used. The harness will verify that the reported `nodes_used` matches an independent call counter; the field is **not** self‑reported.
+
+### Evaluation Criteria
+
+1. **Correctness** – For each case, either
+   * `abs(computed – reference) ≤ 1e‑10`, or
+   * `abs(computed – reference) / |reference| ≤ 1e‑10`.
+   The hidden reference values are generated with 400‑digit MPFR precision.
+2. **Efficiency** – The harness enforces a hard evaluation budget (function‑call count) that depends on the frequency:
+   * `ω ≤ 1e4` → ≤ 10 000 calls
+   * `ω > 1e4` → ≤ 100 000 calls
+3. **Robustness** – All 100 hidden cases must satisfy both correctness and efficiency.
+4. **Method Transparency** – The `method` string is checked for consistency with the observed call pattern; no subjective grading is performed.
+
+### Implementation Hint
+
+Provide a clean Python module **`oscint.py`** exposing:
+
+```python
+from typing import Callable, Tuple
+
+def oscillatory_integral(
+    f: Callable[[float], float],
+    g: Callable[[float], float],
+    a: float,
+    b: float,
+    omega: float,
+    *,
+    tol: float = 1e-12,
+) -> Tuple[float, int, str]:
+    """Return (integral, nodes_used, method_name)."""
+```
+
+The solution should combine:
+- Phase‑aware interval splitting
+- Filon‑type quadrature on linear‑phase sub‑intervals
+- Levin‑type collocation for non‑linear phases
+- Adaptive refinement via Richardson extrapolation
+- High‑precision fallback with `mpmath` when `omega` is large or the error estimate stalls.
+
+### Time Estimate
+
+≈ 2 person‑weeks (≈ 80 h) for a production‑ready implementation, tests, and documentation.
+
+You have **1800 seconds** to complete this task. The clock starts now.
+

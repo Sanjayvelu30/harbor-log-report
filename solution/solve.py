@@ -255,7 +255,7 @@ def count_crossings(px, py, segments):
 
 def classify_point(px, py, segments):
     d = distance_to_boundary(px, py, segments)
-    if d <= 1e-9:
+    if d <= 1e-8:
         return "boundary"
     crossings = count_crossings(px, py, segments)
     if crossings % 2 == 1:

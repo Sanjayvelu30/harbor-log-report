@@ -1,8 +1,8 @@
 artifacts = ["/app/results.json"]
 
 [task]
-name = "dynamo/curved-boundary-point-classifier"
-description = "Determine if 2D coordinates are inside, outside, or on the boundary of a region defined by lines, circular arcs, and Bezier curves."
+name = "oscillatory-integral-evaluation"
+description = "High‑Precision Evaluation of Oscillatory Integrals via Filon/Levin Adaptive Quadrature. Compute I(ω)=∫_{a}^{b} f(x)·cos(ω x)dx for challenging frequencies and functions."
 
 [metadata]
 category = "mathematics_and_formal_reasoning"
@@ -13,7 +13,7 @@ expert_time_estimate_hours = 4.0
 model_tested = "GPT-5.4"
 agent_tested = "Terminus-2"
 difficulty_explanation = "Checking point membership in a closed curved boundary using exact ray casting and algebraic intersection solvers (for cubic Bézier curves, quadratic Bézier curves, and circular arcs). Both polynomial‑root approaches and direct grid/ternary‑search evaluation are acceptable; the tolerance is intentionally tight to differentiate numerical strategies."
-solution_explanation = "The reference solution checks distance to each segment; points within 1e-9 are classified as boundary. For other points, a horizontal ray is cast and crossing count is performed using algebraic solvers. Bézier projection uses a uniform grid of 1001 sample points followed by a ternary‑search refinement of 60 iterations within a ±0.002 window (matching solve.py)."
+solution_explanation = "The reference solution checks distance to each segment; points within 1e-8 are classified as boundary. For other points, a horizontal ray is cast and crossing count is performed using algebraic solvers. Bézier projection uses a uniform grid of 1001 sample points followed by a ternary‑search refinement of 60 iterations within a ±0.002 window (matching solve.py)."
 verification_explanation = "Checks that /app/results.json matches the expected classification for all 100 points."
 
 [verifier]
