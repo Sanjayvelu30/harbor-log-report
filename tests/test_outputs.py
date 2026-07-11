@@ -1,48 +1,152 @@
 import json
 from pathlib import Path
 
+# Hardcoded expected classifications for the 100 points
+EXPECTED = {
+  "0": "inside",
+  "1": "inside",
+  "2": "outside",
+  "3": "boundary",
+  "4": "inside",
+  "5": "inside",
+  "6": "boundary",
+  "7": "outside",
+  "8": "boundary",
+  "9": "outside",
+  "10": "outside",
+  "11": "boundary",
+  "12": "inside",
+  "13": "inside",
+  "14": "outside",
+  "15": "inside",
+  "16": "inside",
+  "17": "outside",
+  "18": "outside",
+  "19": "inside",
+  "20": "boundary",
+  "21": "boundary",
+  "22": "boundary",
+  "23": "outside",
+  "24": "outside",
+  "25": "inside",
+  "26": "outside",
+  "27": "boundary",
+  "28": "outside",
+  "29": "inside",
+  "30": "boundary",
+  "31": "inside",
+  "32": "inside",
+  "33": "inside",
+  "34": "outside",
+  "35": "inside",
+  "36": "outside",
+  "37": "inside",
+  "38": "outside",
+  "39": "boundary",
+  "40": "inside",
+  "41": "boundary",
+  "42": "inside",
+  "43": "inside",
+  "44": "boundary",
+  "45": "outside",
+  "46": "inside",
+  "47": "inside",
+  "48": "boundary",
+  "49": "inside",
+  "50": "outside",
+  "51": "inside",
+  "52": "boundary",
+  "53": "inside",
+  "54": "boundary",
+  "55": "inside",
+  "56": "inside",
+  "57": "outside",
+  "58": "boundary",
+  "59": "inside",
+  "60": "boundary",
+  "61": "boundary",
+  "62": "boundary",
+  "63": "outside",
+  "64": "outside",
+  "65": "boundary",
+  "66": "outside",
+  "67": "inside",
+  "68": "outside",
+  "69": "boundary",
+  "70": "boundary",
+  "71": "outside",
+  "72": "inside",
+  "73": "outside",
+  "74": "inside",
+  "75": "outside",
+  "76": "boundary",
+  "77": "outside",
+  "78": "outside",
+  "79": "outside",
+  "80": "inside",
+  "81": "boundary",
+  "82": "boundary",
+  "83": "outside",
+  "84": "outside",
+  "85": "boundary",
+  "86": "inside",
+  "87": "outside",
+  "88": "boundary",
+  "89": "outside",
+  "90": "outside",
+  "91": "boundary",
+  "92": "boundary",
+  "93": "boundary",
+  "94": "boundary",
+  "95": "inside",
+  "96": "outside",
+  "97": "boundary",
+  "98": "boundary",
+  "99": "outside"
+}
 
-def test_criterion_1_parse_access_log():
-    """Verify Success Criterion 1: Parse /app/access.log."""
-    # Ensure the input log exists in the workspace
-    assert Path("/app/access.log").exists(), "/app/access.log does not exist"
+def test_criterion_1_input_files_exist():
+    """Verify Success Criterion 1: Verify boundary.json and points.json exist in /app."""
+    assert Path("/app/boundary.json").exists(), "/app/boundary.json does not exist"
+    assert Path("/app/points.json").exists(), "/app/points.json does not exist"
 
-
-def test_criterion_2_total_requests():
-    """Verify Success Criterion 2: Compute total_requests (the total number of request entries in the log file)."""
-    path = Path("/app/report.json")
-    assert path.exists(), "report.json does not exist"
+def test_criterion_2_results_file_format():
+    """Verify Success Criterion 2: Verify results.json exists, is valid JSON, and covers all 100 points."""
+    path = Path("/app/results.json")
+    assert path.exists(), "/app/results.json does not exist"
     with open(path) as f:
         data = json.load(f)
-    assert data.get("total_requests") == 6, f"Expected 6 total requests, got {data.get('total_requests')}"
+    assert isinstance(data, dict), "/app/results.json must be a JSON dictionary"
+    assert len(data) == 100, f"Expected 100 results, got {len(data)}"
+    for key in EXPECTED.keys():
+        assert key in data, f"Point ID '{key}' missing from results.json"
 
-
-def test_criterion_3_unique_ips():
-    """Verify Success Criterion 3: Compute unique_ips (the number of unique client IP addresses)."""
-    path = Path("/app/report.json")
-    assert path.exists(), "report.json does not exist"
+def test_criterion_3_boundary_classifications():
+    """Verify Success Criterion 3: Verify all boundary points are correctly classified."""
+    path = Path("/app/results.json")
+    assert path.exists(), "/app/results.json does not exist"
     with open(path) as f:
         data = json.load(f)
-    assert data.get("unique_ips") == 3, f"Expected 3 unique IPs, got {data.get('unique_ips')}"
+    for key, val in EXPECTED.items():
+        if val == "boundary":
+            assert data[key] == "boundary", f"Point {key} expected to be 'boundary', got '{data[key]}'"
 
-
-def test_criterion_4_top_path():
-    """Verify Success Criterion 4: Compute top_path (the most frequently requested path)."""
-    path = Path("/app/report.json")
-    assert path.exists(), "report.json does not exist"
+def test_criterion_4_inside_classifications():
+    """Verify Success Criterion 4: Verify all inside points are correctly classified."""
+    path = Path("/app/results.json")
+    assert path.exists(), "/app/results.json does not exist"
     with open(path) as f:
         data = json.load(f)
-    assert data.get("top_path") == "/index.html", f"Expected top path to be '/index.html', got {data.get('top_path')}"
+    for key, val in EXPECTED.items():
+        if val == "inside":
+            assert data[key] == "inside", f"Point {key} expected to be 'inside', got '{data[key]}'"
 
-
-def test_criterion_5_save_json_report():
-    """Verify Success Criterion 5: Save findings to a JSON file at /app/report.json with keys total_requests, unique_ips, and top_path."""
-    path = Path("/app/report.json")
-    assert path.exists(), "report.json does not exist"
+def test_criterion_5_outside_classifications():
+    """Verify Success Criterion 5: Verify all outside points are correctly classified."""
+    path = Path("/app/results.json")
+    assert path.exists(), "/app/results.json does not exist"
     with open(path) as f:
         data = json.load(f)
-    assert "total_requests" in data, "total_requests key is missing"
-    assert "unique_ips" in data, "unique_ips key is missing"
-    assert "top_path" in data, "top_path key is missing"
-
-
+    for key, val in EXPECTED.items():
+        if val == "outside":
+            assert data[key] == "outside", f"Point {key} expected to be 'outside', got '{data[key]}'"

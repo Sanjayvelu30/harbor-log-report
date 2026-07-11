@@ -1,0 +1,65 @@
+{
+    "results": {
+        "tool": {
+            "name": "pytest",
+            "version": "8.4.1"
+        },
+        "summary": {
+            "tests": 5,
+            "passed": 5,
+            "failed": 0,
+            "skipped": 0,
+            "pending": 0,
+            "other": 0,
+            "start": 1783757995.0169818,
+            "stop": 1783757995.0361252
+        },
+        "tests": [
+            {
+                "name": "test_outputs.py::test_criterion_1_input_files_exist",
+                "status": "passed",
+                "duration": 0.0003902900207322091,
+                "start": 1783757995.032917,
+                "stop": 1783757995.0334625,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_criterion_2_results_file_format",
+                "status": "passed",
+                "duration": 0.00037745802546851337,
+                "start": 1783757995.0335493,
+                "stop": 1783757995.0340338,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_criterion_3_boundary_classifications",
+                "status": "passed",
+                "duration": 0.00035375100560486317,
+                "start": 1783757995.0341427,
+                "stop": 1783757995.0345867,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_criterion_4_inside_classifications",
+                "status": "passed",
+                "duration": 0.000526707008248195,
+                "start": 1783757995.0347788,
+                "stop": 1783757995.0354679,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            },
+            {
+                "name": "test_outputs.py::test_criterion_5_outside_classifications",
+                "status": "passed",
+                "duration": 0.00028329098131507635,
+                "start": 1783757995.0355523,
+                "stop": 1783757995.0359173,
+                "retries": 0,
+                "file_path": "test_outputs.py"
+            }
+        ]
+    }
+}

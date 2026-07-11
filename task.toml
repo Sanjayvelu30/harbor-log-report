@@ -1,26 +1,26 @@
-artifacts = ["/app/report.json"]
+artifacts = ["/app/results.json"]
 
 [task]
-name = "dynamo/log-report"
-description = "Parse an Apache-style access log into a small JSON summary report."
+name = "dynamo/curved-boundary-point-classifier"
+description = "Determine if 2D coordinates are inside, outside, or on the boundary of a region defined by lines, circular arcs, and Bezier curves."
 
 [metadata]
-category = "data_processing_and_etl"
-subcategory = "text_processing"
-task_objective = ["transform", "generate"]
+category = "mathematics_and_formal_reasoning"
+subcategory = "computational_geometry"
+task_objective = ["classify", "evaluate"]
 artifact_type = ["text_or_log_file", "generated_output_artifact"]
-expert_time_estimate_hours = 0.3
+expert_time_estimate_hours = 4.0
 model_tested = "GPT-5.4"
 agent_tested = "Terminus-2"
-difficulty_explanation = "Parse a small access log and emit summary stats."
-solution_explanation = "Read the log, count requests/unique IPs, find the top path."
-verification_explanation = "Check the report file."
+difficulty_explanation = "Checking point membership in a closed curved boundary using exact ray casting and algebraic intersection solvers (for cubic Bézier curves, quadratic Bézier curves, and circular arcs). Both polynomial‑root approaches and direct grid/ternary‑search evaluation are acceptable; the tolerance is intentionally tight to differentiate numerical strategies."
+solution_explanation = "The reference solution checks distance to each segment; points within 1e-9 are classified as boundary. For other points, a horizontal ray is cast and crossing count is performed using algebraic solvers. Bézier projection uses a uniform grid of 1001 sample points followed by a ternary‑search refinement of 60 iterations within a ±0.002 window (matching solve.py)."
+verification_explanation = "Checks that /app/results.json matches the expected classification for all 100 points."
 
 [verifier]
 timeout_sec = 120.0
 
 [agent]
-timeout_sec = 120.0
+timeout_sec = 1800.0
 
 [environment]
 build_timeout_sec = 600.0
