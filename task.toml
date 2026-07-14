@@ -1,20 +1,20 @@
-artifacts = ["/app/results.json"]
+artifacts = ["/app/dag_reconstructed.json"]
 
 [task]
-name = "oscillatory-integral-evaluation"
-description = "High‑Precision Evaluation of Oscillatory Integrals via Filon/Levin Adaptive Quadrature. Compute I(ω)=∫_{a}^{b} f(x)·cos(ω x)dx for challenging frequencies and functions."
+name = "git-dag-reconstruction"
+description = "Reconstruct a corrupted Git repository DAG and restore branches directly from obfuscated and packfile-stored binary Git objects."
 
 [metadata]
-category = "mathematics_and_formal_reasoning"
-subcategory = "computational_geometry"
+category = "software_engineering"
+subcategory = "version_control_and_repository_operations"
 task_objective = ["classify", "evaluate"]
 artifact_type = ["text_or_log_file", "generated_output_artifact"]
 expert_time_estimate_hours = 4.0
 model_tested = "GPT-5.4"
 agent_tested = "Terminus-2"
-difficulty_explanation = "Checking point membership in a closed curved boundary using exact ray casting and algebraic intersection solvers (for cubic Bézier curves, quadratic Bézier curves, and circular arcs). Both polynomial‑root approaches and direct grid/ternary‑search evaluation are acceptable; the tolerance is intentionally tight to differentiate numerical strategies."
-solution_explanation = "The reference solution checks distance to each segment; points within 1e-8 are classified as boundary. For other points, a horizontal ray is cast and crossing count is performed using algebraic solvers. Bézier projection uses a uniform grid of 1001 sample points followed by a ternary‑search refinement of 60 iterations within a ±0.002 window (matching solve.py)."
-verification_explanation = "Checks that /app/results.json matches the expected classification for all 100 points."
+difficulty_explanation = "Reconstructing the complete DAG topology of a Git repository from loose and obfuscated packfile objects requires manually parsing binary packfiles, de-obfuscating delta-offsets, and mapping topological dependencies."
+solution_explanation = "The reference solution decodes obfuscated packfile offsets, decompresses zlib streams, resolves ref-delta and offset-delta references, maps topological commit dependencies, and outputs the DAG structure and reference branch tips."
+verification_explanation = "Checks that /app/dag_reconstructed.json matches the ground-truth DAG topology and that git checkout of tips yields byte-identical files."
 
 [verifier]
 timeout_sec = 120.0
